@@ -1,5 +1,5 @@
 # babble-graph
-Graphic visualization for Babble Hashgraph
+Live graphic visualization for Babble Hashgraph
 
 ## Quick Start
 

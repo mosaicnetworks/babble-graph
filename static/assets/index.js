@@ -7,24 +7,24 @@ let legendLayer;
 let blockBack;
 let blockGroup;
 
-let events = [];       // [[id, event]]
-let participants = {}; // {hash: id}
+const events = [];       // [[id, event]]
+const participants = {}; // {hash: id}
 
-let xInterval = 80;
-let yInterval = 30;
+const xInterval = 80;
+const yInterval = 30;
 
 let intervalHandler;
 
 let actualRound = -1;
 let actualBlock = -1;
 
-let settingValues = {
+const settingValues = {
     showEventIds: false,
     autoScroll: true,
 };
 
 // Main loop
-let loop = () => {
+const loop = () => {
     fetch("/data")
         .then(res => res.json())
         .then(data => {
@@ -46,7 +46,7 @@ let loop = () => {
 };
 
 // Main function
-let main = () => {
+const main = () => {
     setupStage();
 
     drawLegend();

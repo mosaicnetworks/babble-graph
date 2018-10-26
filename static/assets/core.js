@@ -1,8 +1,8 @@
-let setInitial = pId => ([eId, event]) => {
+const setInitial = pId => ([eId, event]) => {
     event.EventId = eId;
     event.ParticipantHash = pId;
 
-    event.x = xInterval + (participants[pId] * xInterval);
+    event.x = 100 + xInterval + (participants[pId] * xInterval);
     event.y = -1;
 
     if (event.Body.Index === -1) {
@@ -16,7 +16,7 @@ let setInitial = pId => ([eId, event]) => {
 
 // Set the initial event pos
 // Returns only unknown events
-let processParticipant = ([pId, participant]) => {
+const processParticipant = ([pId, participant]) => {
     // Assign line ID
     if (participants[pId] == null) {
         participants[pId] = _.values(participants).length;
@@ -34,7 +34,7 @@ let processParticipant = ([pId, participant]) => {
 }
 
 // Loop through the participants
-let filterPopulate = participantsEvents => {
+const filterPopulate = participantsEvents => {
     return _(participantsEvents)
         .toPairs()
         .map(processParticipant)
@@ -43,7 +43,7 @@ let filterPopulate = participantsEvents => {
 };
 
 // Find and assign parents
-let assignParents = ([eId, event]) => {
+const assignParents = ([eId, event]) => {
     event.ParentEvents = event.ParentEvents || [];
 
     _.each(event.Body.Parents, parentId => {
@@ -57,7 +57,7 @@ let assignParents = ([eId, event]) => {
     });
 };
 
-let setYPos = ([eId, event]) => {
+const setYPos = ([eId, event]) => {
     if (_.every(event.ParentEvents, ev => ev.y !== -1)) {
         let higherParent = _.maxBy(event.ParentEvents, ev => ev.y);
 
@@ -76,7 +76,7 @@ let setYPos = ([eId, event]) => {
 
 // Loop through the unknown events and gradualy set y position
 // only when parents are both already set
-let processParents = evs => {
+const processParents = evs => {
     let processed = [];
 
     evs = _.filter(evs, ([eId, event]) => event.ParentEvents.length && event.y == -1);
@@ -100,7 +100,7 @@ let processParents = evs => {
 };
 
 // Assign the events round info
-let assignRound = (rounds) => {
+const assignRound = (rounds) => {
     _(rounds).each((round, rId) => {
         _.forIn(round.Events, (roundEvent, reId) => {
             let eventInfos = _.find(events, ([eId, _]) => eId === reId)

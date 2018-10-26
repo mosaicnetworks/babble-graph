@@ -4,7 +4,7 @@
 // | y
 
 // Setup the scene
-let setupStage = () => {
+const setupStage = () => {
     stage = new Konva.Stage({
         container: 'container',
         width: window.innerWidth,
@@ -18,9 +18,9 @@ let setupStage = () => {
     hgGroup = new Konva.Group({
         draggable: true,
         dragBoundFunc: pos => {
-            let yPos = pos.y < -hgBack.getHeight() + window.innerHeight ? -hgBack.getHeight() + window.innerHeight : pos.y;
+            let yPos = pos.y > hgBack.getHeight() ? hgBack.getHeight() : pos.y;
 
-            yPos = yPos > 0 ? 0 : yPos;
+            yPos = yPos < window.innerHeight ? window.innerHeight : yPos;
 
             return {
                 x: 0,
@@ -30,18 +30,19 @@ let setupStage = () => {
     });
 
     hgBack = new Konva.Rect({
-        x: 0,
-        y: 0,
+        x: 100,
+        y: -window.innerHeight,
         width: window.innerWidth - 100,
         height: window.innerHeight,
     });
 
     blockGroup = new Konva.Group({
+        y: window.innerHeight,
         draggable: true,
         dragBoundFunc: pos => {
-            let yPos = pos.y < -blockBack.getHeight() + window.innerHeight ? -blockBack.getHeight() + window.innerHeight : pos.y;
+            let yPos = pos.y > blockBack.getHeight() ? blockBack.getHeight() : pos.y;
 
-            yPos = yPos > 0 ? 0 : yPos;
+            yPos = yPos < window.innerHeight ? window.innerHeight : yPos;
 
             return {
                 x: 0,
@@ -51,10 +52,11 @@ let setupStage = () => {
     });
 
     blockBack = new Konva.Rect({
-        x: window.innerWidth - 100,
-        y: 0,
+        x: 0,
+        y: -window.innerHeight,
         width: 100,
         height: window.innerHeight,
+        fill: '#555555',
     });
 
     hgGroup.add(hgBack);
@@ -69,7 +71,7 @@ let setupStage = () => {
 };
 
 // Return the color of the event
-let getEventColor = event => {
+const getEventColor = event => {
     let color = '#555555';
 
     if (event.Famous) {
@@ -87,11 +89,11 @@ let getEventColor = event => {
 
 // Draw the event, the associated index text
 // and set the borderLine (stroke) if it contains a Tx
-let drawEvent = event => {
+const drawEvent = event => {
     // The event circle
     event.circle = new Konva.Circle({
         x: event.x,
-        y: event.y,
+        y: -event.y,
         radius: 10,
         fill: getEventColor(event),
     });
@@ -99,7 +101,7 @@ let drawEvent = event => {
     // The event index
     event.text = new Konva.Text({
         x: event.x + 15,
-        y: event.y - 5,
+        y: -event.y - 5,
         text: event.Body.Index === -1 ? '' : '' + event.Body.Index,
         fontSize: 12,
         fontFamily: 'Calibri',
@@ -134,19 +136,19 @@ let drawEvent = event => {
     hgGroup.add(event.text);
 
     if (settingValues.autoScroll) {
-        hgGroup.setY(_.min([0, hgGroup.getY(), -event.y + window.innerHeight - 100]));
+        hgGroup.setY(_.max([window.innerHeight, hgGroup.getY(), event.y + 100]));
     }
 };
 
 // Draw the links between an event and its parents
-let drawEventLinks = event => {
+const drawEventLinks = event => {
     _.each(event.ParentEvents, parentEvent => {
         let arrow = new Konva.Arrow({
             points: [
                 parentEvent.x,
-                parentEvent.y,
+                -parentEvent.y,
                 event.x,
-                event.y,
+                -event.y,
             ],
             pointerLength: 5,
             pointerWidth: 5,
@@ -162,7 +164,7 @@ let drawEventLinks = event => {
 };
 
 // Draw the round separators
-let drawRoundLines = rounds => {
+const drawRoundLines = rounds => {
     // Dirty tmp fix for events that are in the first and second round
     if (rounds.length >= 2) {
         rounds[1].Events = _.fromPairs(_.differenceBy(_.toPairs(rounds[1].Events), _.toPairs(rounds[0].Events), ([rId, round]) => rId));
@@ -187,18 +189,18 @@ let drawRoundLines = rounds => {
 
             let line = new Konva.Line({
                 points: [
-                    0,
-                    ev.y - yInterval / 2,
-                    (_.keys(participants).length + 1) * xInterval,
-                    ev.y - yInterval / 2,
+                    100,
+                    -(ev.y - yInterval / 2),
+                    100 + (_.keys(participants).length + 1) * xInterval,
+                    -(ev.y - yInterval / 2),
                 ],
                 stroke: 'white',
                 strokeWidth: 2,
             });
 
             let txt = new Konva.Text({
-                x: 5 + (_.keys(participants).length + 1) * xInterval,
-                y: ev.y - yInterval / 2 - 6,
+                x: 100 + 5 + (_.keys(participants).length + 1) * xInterval,
+                y: -(ev.y - yInterval / 2 + 6),
                 text: '' + rId,
                 fontSize: 12,
                 fontFamily: 'Calibri',
@@ -212,15 +214,15 @@ let drawRoundLines = rounds => {
     actualRound = rounds.length - 1;
 };
 
-let drawBlocks = blocks => {
+const drawBlocks = blocks => {
     _.each(blocks, (block, bId) => {
         if (bId <= actualBlock) {
             return
         }
 
         let b = new Konva.Rect({
-            x: window.innerWidth - 80,
-            y: 20 + yInterval + (yInterval * bId),
+            x: 20,
+            y: -20 - yInterval - (yInterval * bId),
             height: 20,
             width: 60,
             fill: '#999999',
@@ -229,8 +231,8 @@ let drawBlocks = blocks => {
         });
 
         let txt = new Konva.Text({
-            x: window.innerWidth - 60,
-            y: 20 + yInterval + (yInterval * bId) + 5,
+            x: 40,
+            y: -20 - yInterval - (yInterval * bId) + 5,
             text: '' + bId + ' (' + block.Body.Transactions.length + ')',
             fontSize: 12,
             fontFamily: 'Calibri',
@@ -240,17 +242,21 @@ let drawBlocks = blocks => {
         blockGroup.add(b, txt);
 
         if (settingValues.autoScroll) {
-            blockGroup.setY(_.min([0, blockGroup.getY(), -(40 + yInterval + (yInterval * bId) + 5) + window.innerHeight]));
+            blockGroup.setY(_.max([window.innerHeight, (40 + yInterval + (yInterval * bId) + 5) + 30]));
         }
     })
 
     actualBlock = blocks.length - 1;
 
-    blockBack.setHeight((50 + yInterval + (yInterval * actualBlock + 1)));
+    let maxY = _.max([(40 + yInterval + (yInterval * actualBlock) + 5) + 30, window.innerHeight]);
+
+    console.log(maxY);
+    blockBack.setHeight(maxY);
+    blockBack.setY(-maxY);
 };
 
 // Main draw function
-let draw = (evs, rounds, blocks) => {
+const draw = (evs, rounds, blocks) => {
     _.each(evs, ([eId, event]) => {
         drawEvent(event);
 
@@ -269,11 +275,14 @@ let draw = (evs, rounds, blocks) => {
 
     let maxY = _.maxBy(events, ([eId, event]) => event.y)[1].y;
 
-    hgBack.setHeight(100 + maxY);
+    maxY = _.max([maxY + 100, window.innerHeight]);
+
+    hgBack.setHeight(maxY);
+    hgBack.setY(-maxY);
 };
 
 // Draw the legend
-let drawLegend = () => {
+const drawLegend = () => {
     let legends = [
         {
             name: 'Root',
@@ -343,7 +352,7 @@ let drawLegend = () => {
 };
 
 // Draw the legend
-let drawSettings = () => {
+const drawSettings = () => {
     let settings = [
         {
             label: 'Show event ids',
