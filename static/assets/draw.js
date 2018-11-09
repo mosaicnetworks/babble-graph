@@ -167,7 +167,7 @@ const drawEventLinks = event => {
 const drawRoundLines = rounds => {
     // Dirty tmp fix for events that are in the first and second round
     if (rounds.length >= 2) {
-        rounds[1].Events = _.fromPairs(_.differenceBy(_.toPairs(rounds[1].Events), _.toPairs(rounds[0].Events), ([rId, round]) => rId));
+        rounds[1].CreatedEvents = _.fromPairs(_.differenceBy(_.toPairs(rounds[1].CreatedEvents), _.toPairs(rounds[0].CreatedEvents), ([rId, round]) => rId));
     }
 
     _(rounds)
@@ -179,7 +179,7 @@ const drawRoundLines = rounds => {
 
             let roundEvents = [];
 
-            _.forIn(round.Events, (event, reId) => {
+            _.forIn(round.CreatedEvents, (event, reId) => {
                 roundEvents.push(_.find(events, ([eId, e]) => eId === reId))
             });
 

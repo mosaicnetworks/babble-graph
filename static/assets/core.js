@@ -102,7 +102,7 @@ const processParents = evs => {
 // Assign the events round info
 const assignRound = (rounds) => {
     _(rounds).each((round, rId) => {
-        _.forIn(round.Events, (roundEvent, reId) => {
+        _.forIn(round.CreatedEvents, (roundEvent, reId) => {
             let eventInfos = _.find(events, ([eId, _]) => eId === reId)
 
             if (eventInfos == null) {
