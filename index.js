@@ -28,7 +28,6 @@ app.get('/data', (req, res) => {
             return res.send(error)
         }
 
-        res.type('json')
         res.send(body)
     })
 })

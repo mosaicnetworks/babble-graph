@@ -57,3 +57,13 @@ const main = () => {
 };
 
 main();
+
+var scrollContainer = document.getElementById('scroll-container');
+scrollContainer.addEventListener('scroll', function () {
+    var dx = scrollContainer.scrollLeft;
+    var dy = scrollContainer.scrollTop;
+    stage.container().style.transform = 'translate(' + dx + 'px, ' + dy + 'px)';
+    stage.x(-dx);
+    stage.y(-dy);
+    stage.batchDraw();
+})
