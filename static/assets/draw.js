@@ -89,7 +89,7 @@ const getEventColor = event => {
 
 // Draw the event, the associated index text
 // and set the borderLine (stroke) if it contains a Tx
-const drawEvent = event => {
+const drawEvent = (id, event) => {
     // The event circle
     event.circle = new Konva.Circle({
         x: event.x,
@@ -102,7 +102,8 @@ const drawEvent = event => {
     event.text = new Konva.Text({
         x: event.x + 15,
         y: -event.y - 5,
-        text: event.Body.Index === -1 ? '' : '' + event.Body.Index,
+        text: id.substring(2,6),
+        //text: event.Body.Index === -1 ? '' : '' + event.Body.Index,
         fontSize: 12,
         fontFamily: 'Calibri',
         fill: 'white',
@@ -258,7 +259,7 @@ const drawBlocks = blocks => {
 // Main draw function
 const draw = (evs, rounds, blocks) => {
     _.each(evs, ([eId, event]) => {
-        drawEvent(event);
+        drawEvent(eId, event);
 
         if (event.ParentEvents.length === 0) {
             return;
