@@ -116,7 +116,7 @@ const assignRound = (rounds) => {
             event.Round = rId;
             event.Consensus = roundEvent.Consensus;
             event.Witness = roundEvent.Witness;
-            event.Famous = !!roundEvent.Famous;
+            event.Famous = roundEvent.Famous == 1;
 
             if (event.circle != null) {
                 event.circle.setFill(getEventColor(event));
