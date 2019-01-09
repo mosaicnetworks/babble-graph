@@ -5,8 +5,8 @@ const setInitial = pId => ([eId, event]) => {
     event.x = 100 + xInterval + (participants[pId] * xInterval);
     event.y = -1;
 
-    if (event.Body.Index === -1) {
-        event.y = 80;
+    if (event.Body.Index === -1 || event.Body.Parents.length == 0) {
+        event.y = 100;
     }
 
     events.push([eId, event]);
@@ -117,6 +117,7 @@ const assignRound = (rounds) => {
             event.Consensus = roundEvent.Consensus;
             event.Witness = roundEvent.Witness;
             event.Famous = roundEvent.Famous == 1;
+            event.FamousEnum = roundEvent.Famous;
 
             if (event.circle != null) {
                 event.circle.setFill(getEventColor(event));

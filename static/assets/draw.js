@@ -74,13 +74,15 @@ const setupStage = () => {
 const getEventColor = event => {
     let color = '#555555';
 
-    if (event.Famous) {
+    if (event.FamousEnum === 1) {
         color = '#00ffff';
+    } else if (event.FamousEnum === 2) {
+        color = '#ffaa00';
     } else if (event.Witness) {
         color = '#5555ff';
     } else if (event.Consensus) {
         color = '#00ff00';
-    } else if (event.Body.Index === -1) {
+    } else if (event.Body != null && event.Body.Index === -1) {
         color = '#ff0000';
     }
 
@@ -183,7 +185,12 @@ const drawRoundLines = rounds => {
                 roundEvents.push(_.find(events, ([eId, e]) => eId === reId))
             });
 
+
             roundEvents = _.compact(roundEvents);
+
+            if (roundEvents.length === 0) {
+                return
+            }
 
             let [eId, ev] = _.minBy(roundEvents, ([eId, ev]) => ev.y);
 
@@ -250,7 +257,6 @@ const drawBlocks = blocks => {
 
     let maxY = _.max([(40 + yInterval + (yInterval * actualBlock) + 5) + 30, window.innerHeight]);
 
-    console.log(maxY);
     blockBack.setHeight(maxY);
     blockBack.setY(-maxY);
 };
@@ -294,7 +300,11 @@ const drawLegend = () => {
         },
         {
             name: 'Famous',
-            color: getEventColor({ Famous: true }),
+            color: getEventColor({ FamousEnum: 1 }),
+        },
+        {
+            name: 'Not Famous',
+            color: getEventColor({ FamousEnum: 2 }),
         },
         {
             name: 'Witness',
