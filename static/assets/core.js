@@ -64,11 +64,14 @@ const setYPos = ([eId, event]) => {
         event.y = higherParent.y + yInterval;
 
         // fix the position if in another round than a Y neighbour
-        let neighbour = _.find(events, ([eId, ev]) => ev.y === event.y && eId !== event.EventId && ev.Round < event.Round)
+        // let neighbour = _.find(events, ([eId, ev]) => {
+        //     return ev.y >= event.y && eId !== event.EventId && ev.Round < event.Round;
+        // });
 
-        if (neighbour != null) {
-            event.y = neighbour[1].y + yInterval;
-        }
+        // if (neighbour != null) {
+        //     event.y = neighbour[1].y + yInterval;
+        // }
+
     }
 
     return [eId, event];
@@ -101,27 +104,34 @@ const processParents = evs => {
 
 // Assign the events round info
 const assignRound = (rounds) => {
-    _(rounds).each((round, rId) => {
-        _.forIn(round.CreatedEvents, (roundEvent, reId) => {
-            let eventInfos = _.find(events, ([eId, _]) => eId === reId)
+    _(rounds)
+        .filter((round, rId) => rId >= actualRound)
+        .each((round, rId) => {
+            _.forIn(round.CreatedEvents, (roundEvent, reId) => {
+                let eventInfos = _.find(events, ([eId, _]) => eId === reId)
 
-            if (eventInfos == null) {
-                console.log('ERROR: Unknown event', reId);
+                if (eventInfos == null) {
+                    console.log('ERROR: Unknown event', reId);
 
-                return
-            }
+                    return
+                }
 
-            let event = eventInfos[1];
+                let event = eventInfos[1];
 
-            event.Round = rId;
-            event.Consensus = roundEvent.Consensus;
-            event.Witness = roundEvent.Witness;
-            event.Famous = roundEvent.Famous == 1;
-            event.FamousEnum = roundEvent.Famous;
+                if (event.Round == null) {
+                    event.Round = rId;
+                }
 
-            if (event.circle != null) {
-                event.circle.setFill(getEventColor(event));
-            }
+                event.Consensus = roundEvent.Consensus;
+                event.Witness = roundEvent.Witness;
+                event.Famous = roundEvent.Famous == 1;
+                event.FamousEnum = roundEvent.Famous;
+
+                if (event.circle != null) {
+                    event.circle.setFill(getEventColor(event));
+                }
+            });
+
         })
-    });
+        ;
 };

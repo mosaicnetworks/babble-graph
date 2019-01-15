@@ -1,4 +1,4 @@
-# babble-graph
+# Babble-Graph
 Live graphic visualization for Babble Hashgraph
 
 ## Quick Start

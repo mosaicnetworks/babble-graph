@@ -1,38 +1,10 @@
 <html>
 
 <head>
-    <style>
-        body {
-            margin: 0;
-            padding: 0;
-            overflow: hidden;
-            background-color: #F0F0F0;
-            height: 100%;
-            overflow: auto;
-        }
-
-        #large-container {
-            width: 3000px;
-            height: 20000px;
-            overflow: hidden;
-        }
-
-        #scroll-container {
-            width: calc(100% - 22px);
-            height: calc(100vh - 22px);
-            overflow: auto;
-            margin: 10px;
-            border: 1px solid grey;
-        }
-    </style>
 </head>
 
 <body style="background-color: #777777; margin: 0px">
-    <div id="scroll-container">
-        <div id="large-container">
-            <div id="container"></div>
-        </div>
-    </div>
+    <div id="container"></div>
     <script src="https://unpkg.com/konva@2.4.1/konva.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/lodash@4.17.11/lodash.min.js"></script>
     <script src="assets/draw.js"></script>
