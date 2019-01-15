@@ -6,6 +6,7 @@ let hgBack;
 let legendLayer;
 let blockBack;
 let blockGroup;
+let legendBackground;
 
 const events = [];       // [[id, event]]
 const participants = {}; // {hash: id}
@@ -19,7 +20,8 @@ let actualRound = -1;
 let actualBlock = -1;
 
 const settingValues = {
-    showEventIds: false,
+    showEventHash: false,
+    showEventIdx: true,
     autoScroll: true,
 };
 
@@ -57,3 +59,52 @@ const main = () => {
 };
 
 main();
+
+hgGroup.on('wheel', e => {
+    hgGroup.move({
+        y: -e.evt.deltaY
+    });
+
+    let yPos = hgGroup.y() > hgBack.getHeight() ? hgBack.getHeight() : hgGroup.y();
+
+    yPos = yPos < window.innerHeight ? window.innerHeight : yPos;
+
+    hgGroup.setY(yPos);
+
+    stage.draw();
+});
+
+blockGroup.on('wheel', e => {
+    blockGroup.move({
+        y: -e.evt.deltaY
+    });
+
+    let yPos = blockGroup.y() > blockBack.getHeight() ? blockBack.getHeight() : blockGroup.y();
+
+    yPos = yPos < window.innerHeight ? window.innerHeight : yPos;
+
+    blockGroup.setY(yPos);
+
+    stage.draw();
+});
+
+window.addEventListener("resize", () => {
+    let width = window.innerWidth;
+    let height = window.innerHeight;
+
+    stage.width(width);
+    stage.height(height);
+
+    hgBack.y(-height);
+    hgBack.width(width - 100);
+    hgBack.height(height);
+
+    blockGroup.y(height);
+
+    blockBack.y(-height);
+    blockBack.height(height);
+
+    legendBackground.width(width);
+
+    stage.draw()
+});

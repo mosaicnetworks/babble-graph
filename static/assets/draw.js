@@ -74,13 +74,15 @@ const setupStage = () => {
 const getEventColor = event => {
     let color = '#555555';
 
-    if (event.Famous) {
+    if (event.FamousEnum === 1) {
         color = '#00ffff';
+    } else if (event.FamousEnum === 2) {
+        color = '#ffaa00';
     } else if (event.Witness) {
         color = '#5555ff';
     } else if (event.Consensus) {
         color = '#00ff00';
-    } else if (event.Body.Index === -1) {
+    } else if (event.Body != null && event.Body.Index === -1) {
         color = '#ff0000';
     }
 
@@ -89,7 +91,7 @@ const getEventColor = event => {
 
 // Draw the event, the associated index text
 // and set the borderLine (stroke) if it contains a Tx
-const drawEvent = event => {
+const drawEvent = (id, event) => {
     // The event circle
     event.circle = new Konva.Circle({
         x: event.x,
@@ -102,13 +104,14 @@ const drawEvent = event => {
     event.text = new Konva.Text({
         x: event.x + 15,
         y: -event.y - 5,
-        text: event.Body.Index === -1 ? '' : '' + event.Body.Index,
+        text: id.substring(2, 6),
+        //text: event.Body.Index === -1 ? '' : '' + event.Body.Index,
         fontSize: 12,
         fontFamily: 'Calibri',
         fill: 'white',
     });
 
-    if (!settingValues.showEventIds) {
+    if (!settingValues.showEventHash) {
         event.text.hide();
     }
 
@@ -132,8 +135,21 @@ const drawEvent = event => {
         event.circle.setStrokeWidth(3);
     }
 
+
     hgGroup.add(event.circle);
     hgGroup.add(event.text);
+
+    // Round ID
+    event.roundIdx = new Konva.Text({
+        x: event.x + 15,
+        y: -event.y - 5,
+        text: '' + event.Body.Index,
+        fontSize: 12,
+        fontFamily: 'Calibri',
+        fill: 'white',
+    });
+
+    hgGroup.add(event.roundIdx);
 
     if (settingValues.autoScroll) {
         hgGroup.setY(_.max([window.innerHeight, hgGroup.getY(), event.y + 100]));
@@ -167,7 +183,7 @@ const drawEventLinks = event => {
 const drawRoundLines = rounds => {
     // Dirty tmp fix for events that are in the first and second round
     if (rounds.length >= 2) {
-        rounds[1].Events = _.fromPairs(_.differenceBy(_.toPairs(rounds[1].Events), _.toPairs(rounds[0].Events), ([rId, round]) => rId));
+        rounds[1].CreatedEvents = _.fromPairs(_.differenceBy(_.toPairs(rounds[1].CreatedEvents), _.toPairs(rounds[0].CreatedEvents), ([rId, round]) => rId));
     }
 
     _(rounds)
@@ -179,11 +195,16 @@ const drawRoundLines = rounds => {
 
             let roundEvents = [];
 
-            _.forIn(round.Events, (event, reId) => {
+            _.forIn(round.CreatedEvents, (event, reId) => {
                 roundEvents.push(_.find(events, ([eId, e]) => eId === reId))
             });
 
+
             roundEvents = _.compact(roundEvents);
+
+            if (roundEvents.length === 0) {
+                return
+            }
 
             let [eId, ev] = _.minBy(roundEvents, ([eId, ev]) => ev.y);
 
@@ -250,7 +271,6 @@ const drawBlocks = blocks => {
 
     let maxY = _.max([(40 + yInterval + (yInterval * actualBlock) + 5) + 30, window.innerHeight]);
 
-    console.log(maxY);
     blockBack.setHeight(maxY);
     blockBack.setY(-maxY);
 };
@@ -258,7 +278,7 @@ const drawBlocks = blocks => {
 // Main draw function
 const draw = (evs, rounds, blocks) => {
     _.each(evs, ([eId, event]) => {
-        drawEvent(event);
+        drawEvent(eId, event);
 
         if (event.ParentEvents.length === 0) {
             return;
@@ -294,7 +314,11 @@ const drawLegend = () => {
         },
         {
             name: 'Famous',
-            color: getEventColor({ Famous: true }),
+            color: getEventColor({ FamousEnum: 1 }),
+        },
+        {
+            name: 'Not Famous',
+            color: getEventColor({ FamousEnum: 2 }),
         },
         {
             name: 'Witness',
@@ -335,7 +359,7 @@ const drawLegend = () => {
         legendLayer.add(circle, text);
     });
 
-    let background = new Konva.Rect({
+    legendBackground = new Konva.Rect({
         x: 0,
         y: 0,
         height: 40,
@@ -345,8 +369,8 @@ const drawLegend = () => {
         strokeWidth: 1,
     });
 
-    legendLayer.add(background);
-    background.moveToBottom();
+    legendLayer.add(legendBackground);
+    legendBackground.moveToBottom();
 
     legendLayer.draw();
 };
@@ -355,10 +379,28 @@ const drawLegend = () => {
 const drawSettings = () => {
     let settings = [
         {
-            label: 'Show event ids',
-            name: 'showEventIds',
+            label: 'Show hash',
+            name: 'showEventHash',
             trigger: () => {
-                _.each(events, ([eId, event]) => settingValues.showEventIds ? event.text.show() : event.text.hide());
+                if (settingValues.showEventIdx && settingValues.showEventHash) {
+                    toggle(settings[1]);
+                }
+
+                _.each(events, ([eId, event]) => settingValues.showEventHash ? event.text.show() : event.text.hide());
+
+                layer.draw();
+            }
+        },
+        {
+            label: 'Show Index',
+            name: 'showEventIdx',
+            trigger: () => {
+                if (settingValues.showEventIdx && settingValues.showEventHash) {
+                    toggle(settings[0]);
+                }
+
+                _.each(events, ([eId, event]) => settingValues.showEventIdx ? event.roundIdx.show() : event.roundIdx.hide());
+
                 layer.draw();
             }
         },
@@ -383,7 +425,7 @@ const drawSettings = () => {
 
     _.each(settings, (setting, i) => {
         setting.rect = new Konva.Rect({
-            x: 800 + 15 + (i * 120),
+            x: 800 + 15 + (i * 100),
             y: 10,
             width: 20,
             height: 20,
@@ -392,7 +434,7 @@ const drawSettings = () => {
         });
 
         setting.text = new Konva.Text({
-            x: 800 + 40 + (i * 120),
+            x: 800 + 40 + (i * 100),
             y: 15,
             text: setting.label,
             fontSize: 12,
