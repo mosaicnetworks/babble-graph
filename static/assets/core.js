@@ -64,13 +64,13 @@ const setYPos = ([eId, event]) => {
         event.y = higherParent.y + yInterval;
 
         // fix the position if in another round than a Y neighbour
-        // let neighbour = _.find(events, ([eId, ev]) => {
-        //     return ev.y >= event.y && eId !== event.EventId && ev.Round < event.Round;
-        // });
+        let neighbour = _.find(events, ([eId, ev]) => {
+            return ev.y >= event.y && eId !== event.EventId && ev.Round < event.Round;
+        });
 
-        // if (neighbour != null) {
-        //     event.y = neighbour[1].y + yInterval;
-        // }
+        if (neighbour != null) {
+            event.y = neighbour[1].y + yInterval;
+        }
 
     }
 

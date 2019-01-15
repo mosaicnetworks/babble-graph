@@ -20,8 +20,8 @@ let actualRound = -1;
 let actualBlock = -1;
 
 const settingValues = {
-    showEventIds: false,
-    showRounds: true,
+    showEventHash: false,
+    showEventIdx: true,
     autoScroll: true,
 };
 

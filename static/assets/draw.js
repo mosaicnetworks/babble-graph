@@ -111,7 +111,7 @@ const drawEvent = (id, event) => {
         fill: 'white',
     });
 
-    if (!settingValues.showEventIds) {
+    if (!settingValues.showEventHash) {
         event.text.hide();
     }
 
@@ -140,18 +140,16 @@ const drawEvent = (id, event) => {
     hgGroup.add(event.text);
 
     // Round ID
-    if (event.Witness) {
-        event.roundId = new Konva.Text({
-            x: event.x + 15,
-            y: -event.y - 5,
-            text: '' + event.Round,
-            fontSize: 12,
-            fontFamily: 'Calibri',
-            fill: 'white',
-        });
+    event.roundIdx = new Konva.Text({
+        x: event.x + 15,
+        y: -event.y - 5,
+        text: '' + event.Body.Index,
+        fontSize: 12,
+        fontFamily: 'Calibri',
+        fill: 'white',
+    });
 
-        hgGroup.add(event.roundId);
-    }
+    hgGroup.add(event.roundIdx);
 
     if (settingValues.autoScroll) {
         hgGroup.setY(_.max([window.innerHeight, hgGroup.getY(), event.y + 100]));
@@ -182,60 +180,60 @@ const drawEventLinks = event => {
 };
 
 // Draw the round separators
-// const drawRoundLines = rounds => {
-//     // Dirty tmp fix for events that are in the first and second round
-//     if (rounds.length >= 2) {
-//         rounds[1].CreatedEvents = _.fromPairs(_.differenceBy(_.toPairs(rounds[1].CreatedEvents), _.toPairs(rounds[0].CreatedEvents), ([rId, round]) => rId));
-//     }
+const drawRoundLines = rounds => {
+    // Dirty tmp fix for events that are in the first and second round
+    if (rounds.length >= 2) {
+        rounds[1].CreatedEvents = _.fromPairs(_.differenceBy(_.toPairs(rounds[1].CreatedEvents), _.toPairs(rounds[0].CreatedEvents), ([rId, round]) => rId));
+    }
 
-//     _(rounds)
-//         .each((round, rId) => {
-//             // Dont draw existing round
-//             if (rId <= actualRound) {
-//                 return;
-//             }
+    _(rounds)
+        .each((round, rId) => {
+            // Dont draw existing round
+            if (rId <= actualRound) {
+                return;
+            }
 
-//             let roundEvents = [];
+            let roundEvents = [];
 
-//             _.forIn(round.CreatedEvents, (event, reId) => {
-//                 roundEvents.push(_.find(events, ([eId, e]) => eId === reId))
-//             });
+            _.forIn(round.CreatedEvents, (event, reId) => {
+                roundEvents.push(_.find(events, ([eId, e]) => eId === reId))
+            });
 
 
-//             roundEvents = _.compact(roundEvents);
+            roundEvents = _.compact(roundEvents);
 
-//             if (roundEvents.length === 0) {
-//                 return
-//             }
+            if (roundEvents.length === 0) {
+                return
+            }
 
-//             let [eId, ev] = _.minBy(roundEvents, ([eId, ev]) => ev.y);
+            let [eId, ev] = _.minBy(roundEvents, ([eId, ev]) => ev.y);
 
-//             let line = new Konva.Line({
-//                 points: [
-//                     100,
-//                     -(ev.y - yInterval / 2),
-//                     100 + (_.keys(participants).length + 1) * xInterval,
-//                     -(ev.y - yInterval / 2),
-//                 ],
-//                 stroke: 'white',
-//                 strokeWidth: 2,
-//             });
+            let line = new Konva.Line({
+                points: [
+                    100,
+                    -(ev.y - yInterval / 2),
+                    100 + (_.keys(participants).length + 1) * xInterval,
+                    -(ev.y - yInterval / 2),
+                ],
+                stroke: 'white',
+                strokeWidth: 2,
+            });
 
-//             let txt = new Konva.Text({
-//                 x: 100 + 5 + (_.keys(participants).length + 1) * xInterval,
-//                 y: -(ev.y - yInterval / 2 + 6),
-//                 text: '' + rId,
-//                 fontSize: 12,
-//                 fontFamily: 'Calibri',
-//                 fill: 'white',
-//             });
+            let txt = new Konva.Text({
+                x: 100 + 5 + (_.keys(participants).length + 1) * xInterval,
+                y: -(ev.y - yInterval / 2 + 6),
+                text: '' + rId,
+                fontSize: 12,
+                fontFamily: 'Calibri',
+                fill: 'white',
+            });
 
-//             hgGroup.add(line);
-//             hgGroup.add(txt);
-//         });
+            hgGroup.add(line);
+            hgGroup.add(txt);
+        });
 
-//     actualRound = rounds.length - 1;
-// };
+    actualRound = rounds.length - 1;
+};
 
 const drawBlocks = blocks => {
     _.each(blocks, (block, bId) => {
@@ -289,7 +287,7 @@ const draw = (evs, rounds, blocks) => {
         drawEventLinks(event);
     });
 
-    // drawRoundLines(rounds);
+    drawRoundLines(rounds);
 
     drawBlocks(blocks)
 
@@ -381,32 +379,28 @@ const drawLegend = () => {
 const drawSettings = () => {
     let settings = [
         {
-            label: 'Show event ids',
-            name: 'showEventIds',
+            label: 'Show hash',
+            name: 'showEventHash',
             trigger: () => {
-                if (settingValues.showRounds && settingValues.showEventIds) {
+                if (settingValues.showEventIdx && settingValues.showEventHash) {
                     toggle(settings[1]);
                 }
 
-                _.each(events, ([eId, event]) => settingValues.showEventIds ? event.text.show() : event.text.hide());
+                _.each(events, ([eId, event]) => settingValues.showEventHash ? event.text.show() : event.text.hide());
+
                 layer.draw();
             }
         },
         {
-            label: 'Show rounds',
-            name: 'showRounds',
+            label: 'Show Index',
+            name: 'showEventIdx',
             trigger: () => {
-                if (settingValues.showRounds && settingValues.showEventIds) {
+                if (settingValues.showEventIdx && settingValues.showEventHash) {
                     toggle(settings[0]);
                 }
 
-                _.each(events, ([eId, event]) => {
-                    if (event.roundId == null) {
-                        return;
-                    }
+                _.each(events, ([eId, event]) => settingValues.showEventIdx ? event.roundIdx.show() : event.roundIdx.hide());
 
-                    settingValues.showRounds ? event.roundId.show() : event.roundId.hide();
-                });
                 layer.draw();
             }
         },
@@ -431,7 +425,7 @@ const drawSettings = () => {
 
     _.each(settings, (setting, i) => {
         setting.rect = new Konva.Rect({
-            x: 800 + 15 + (i * 120),
+            x: 800 + 15 + (i * 100),
             y: 10,
             width: 20,
             height: 20,
@@ -440,7 +434,7 @@ const drawSettings = () => {
         });
 
         setting.text = new Konva.Text({
-            x: 800 + 40 + (i * 120),
+            x: 800 + 40 + (i * 100),
             y: 15,
             text: setting.label,
             fontSize: 12,
