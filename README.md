@@ -1,6 +1,12 @@
 # Babble-Graph
 Live graphic visualization for Babble Hashgraph
 
+## Disclamer
+
+This software is a Work In Progress in its early stage of development.  
+It is actually only suited for debug and eventualy some demo of the babble consensus system.  
+Please open an issue if you find a strange or unexpected behaviour.
+
 ## Quick Start
 
 Run a babble node on 127.0.0.1:1337 with an attached service on 127.0.0.1:8080
