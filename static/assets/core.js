@@ -5,7 +5,7 @@ const setInitial = pId => ([eId, event]) => {
     event.x = 100 + xInterval + (participants[pId] * xInterval);
     event.y = -1;
 
-    if (event.Body.Index === -1 || event.Body.Parents.length == 0) {
+    if (event.Body.Index === 0 || event.Body.Parents.length == 0) {
         event.y = 100;
     }
 
