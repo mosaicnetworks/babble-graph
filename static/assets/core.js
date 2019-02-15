@@ -5,7 +5,7 @@ const setInitial = pId => ([eId, event]) => {
     event.x = 100 + xInterval + (participants[pId] * xInterval);
     event.y = -1;
 
-    if (event.Body.Index === 0 || event.Body.Parents.length == 0) {
+    if (event.Body.Index === 0 && event.Body.Parents[0] === "" && event.Body.Parents[1] === "") {
         event.y = 100;
     }
 
@@ -71,7 +71,6 @@ const setYPos = ([eId, event]) => {
         if (neighbour != null) {
             event.y = neighbour[1].y + yInterval;
         }
-
     }
 
     return [eId, event];
@@ -82,7 +81,7 @@ const setYPos = ([eId, event]) => {
 const processParents = evs => {
     let processed = [];
 
-    evs = _.filter(evs, ([eId, event]) => event.ParentEvents.length && event.y == -1);
+    evs = _.filter(evs, ([eId, event]) => event.ParentEvents.length && event.y === -1);
 
     let lastLength = evs.length;
 
