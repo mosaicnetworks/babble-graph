@@ -4,7 +4,7 @@
   "description": "Babble Hashgraph Visualisator",
   "main": "index.js",
   "dependencies": {
-    "express": "^4.16.4",
+    "express": "^4.17.3",
     "request": "^2.88.0",
     "yargs": "^12.0.2"
   },
